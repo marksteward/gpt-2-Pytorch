@@ -17,7 +17,6 @@ from GPT2.encoder import get_encoder
 
 def text_generator(state_dict):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--text", type=str, required=True)
     parser.add_argument("--quiet", type=bool, default=False)
     parser.add_argument("--nsamples", type=int, default=1)
     parser.add_argument('--unconditional', action='store_true', help='If true, unconditional generation.')
@@ -53,8 +52,11 @@ def text_generator(state_dict):
     elif args.length > config.n_ctx:
         raise ValueError("Can't get samples longer than window size: %s" % config.n_ctx)
 
-    print(args.text)
-    context_tokens = enc.encode(args.text)
+    if sys.stdin.isatty():
+        print('Please provide a prompt text:')
+
+    text = sys.stdin.read()
+    context_tokens = enc.encode(text)
 
     generated = 0
     for _ in range(args.nsamples // args.batch_size):
